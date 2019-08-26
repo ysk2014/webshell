@@ -13,5 +13,7 @@ cd assets && npm start
 ## 部署
 
 ```
+cd assets && npm start
+
 node ./bin/webshell
 ```
