@@ -17,7 +17,7 @@
     <div id="xterm-wrapper">
       <div
         v-for="(item, index) in terminals"
-        :id="'terminal'+index"
+        :id="item.name"
         :key="index"
         v-show="index == current"
       ></div>
@@ -26,6 +26,7 @@
 </template>
 <script>
 import io from "socket.io-client";
+import { WebLinksAddon } from "xterm-addon-web-links";
 import Terminal from "./Xterm";
 export default {
   name: "Terminal",
@@ -42,8 +43,8 @@ export default {
     createTerminal() {
       let terminalname = "terminal" + this.terminals.length;
 
-      // document.getElementById("xterm-wrapper").appendChild(terminalDiv);
       let term = new Terminal();
+      term.loadAddon(new WebLinksAddon());
       this.terminals.push({
         term: term,
         name: terminalname
@@ -51,7 +52,6 @@ export default {
       this.current = this.terminals.length - 1;
 
       term.on("resize", size => {
-        console.log(size);
         this.socket.emit(terminalname + "-resize", [size.cols, size.rows]);
       });
       term.on("data", data => {
@@ -65,10 +65,7 @@ export default {
       window.addEventListener("resize", () => {
         term.fit();
       });
-      this.socket.emit(
-        "create",
-        Object.assign({ name: terminalname }, this.options)
-      );
+      this.socket.emit("create", { name: terminalname, cwd: this.cwd });
 
       this.$nextTick(() => {
         term.open(document.getElementById(terminalname));
@@ -86,10 +83,16 @@ export default {
         this.$destroy();
       } else {
         let { term, name } = this.terminals[this.current];
+        term.destroy();
+
+        if (this.current + 1 != this.terminals.length) {
+          let next = this.terminals[this.current + 1];
+          document.getElementById(name).append(next.term.element);
+        }
+
         this.terminals.splice(this.current, 1);
         this.current = this.terminals.length - 1;
-        term.destroy();
-        document.getElementById(name).remove();
+        this.terminals[this.current].term.focus();
         this.socket.emit("remove", name);
       }
     },

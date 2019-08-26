@@ -42,7 +42,8 @@
         "vue-template-compiler": "^2.6.8",
         "webpack": "^4.29.6",
         "webpack-cli": "^3.2.3",
-        "xterm": "^3.14.5"
+        "xterm": "^3.14.5",
+        "xterm-addon-web-links": "^0.1.0"
     },
     "dependencies": {}
 }
