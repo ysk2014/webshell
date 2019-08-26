@@ -11,7 +11,6 @@
         </li>
         <li class="icon-plus" @click="handlePlus"></li>
         <li class="icon-delete" @click="handleDelete"></li>
-        <li class="icon-close" @click="hide"></li>
       </ul>
     </div>
     <div id="xterm-wrapper">
@@ -100,9 +99,6 @@ export default {
       this.$destroy();
       this.$el.parentNode.removeChild(this.$el);
       this.delInstance();
-    },
-    hide() {
-      this.visible = false;
     }
   },
 
