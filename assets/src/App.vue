@@ -151,6 +151,16 @@ export default {
         return false;
       }
       this.createTerminal(tab);
+    },
+
+    close() {
+      if (this.terminals.length > 0) {
+        this.terminals.forEach(({ term, name }) => {
+          term.destroy();
+          this.socket.emit(name + "-exit");
+        });
+      }
+      this.socket.close();
     }
   },
 
@@ -163,15 +173,15 @@ export default {
         this.currentTab = this.terminals.length - 1;
       });
     }
+
+    window.onbeforeunload = event => {
+      // this.close();
+      return "Hello";
+    };
   },
 
   beforeDestroy() {
-    this.socket.close();
-    if (this.terminals.length > 0) {
-      this.terminals.forEach(({ term }) => {
-        term.destroy();
-      });
-    }
+    this.close();
   }
 };
 </script>

@@ -16,6 +16,9 @@ module.exports = socket => {
         socket.on(option.name + '-resize', size => {
             ptyProcess.resize(size[0], size[1]);
         });
+        socket.on(option.name + '-exit', size => {
+            ptyProcess.destroy();
+        });
     });
     socket.on('remove', name => {
         socket.removeAllListeners(name + '-input');
