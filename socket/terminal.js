@@ -23,5 +23,6 @@ module.exports = socket => {
     socket.on('remove', name => {
         socket.removeAllListeners(name + '-input');
         socket.removeAllListeners(name + '-resize');
+        socket.removeAllListeners(name + '-exit');
     });
 };

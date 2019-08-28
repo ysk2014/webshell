@@ -1,6 +1,12 @@
 
 <template>
-  <div class="terminal" id="terminal" v-show="visible" v-contextmenu:contextmenu>
+  <div
+    class="terminal"
+    id="terminal"
+    v-show="visible"
+    v-contextmenu:contextmenu
+    @mousemove="handleMove"
+  >
     <div class="header">
       <span>终端</span>
       <ul class="menu-list">
@@ -48,7 +54,7 @@
     </div>
     <v-contextmenu ref="contextmenu" class="contextmenu">
       <v-contextmenu-item @click="handleSplitPane">分屏</v-contextmenu-item>
-      <v-contextmenu-item>关闭</v-contextmenu-item>
+      <v-contextmenu-item @click="handleDelete">关闭</v-contextmenu-item>
       <v-contextmenu-item>设置背景</v-contextmenu-item>
       <v-contextmenu-item>设置</v-contextmenu-item>
     </v-contextmenu>
@@ -59,6 +65,20 @@ import io from "socket.io-client";
 import uuidv4 from "uuid/v4";
 import { WebLinksAddon } from "xterm-addon-web-links";
 import Terminal from "./Xterm";
+
+function isInRect(rect, event) {
+  if (
+    event.clientY >= rect.top &&
+    event.clientY <= rect.top + rect.height &&
+    event.clientX >= rect.left &&
+    event.clientX <= rect.left + rect.width
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 export default {
   name: "Terminal",
   data() {
@@ -77,10 +97,8 @@ export default {
       let term = new Terminal();
       term.loadAddon(new WebLinksAddon());
 
-      container.children.push({
-        term: term,
-        name: terminalname
-      });
+      container.children.push({ term: term, name: terminalname });
+      container.currentPane = container.children.length - 1;
 
       callback && callback();
 
@@ -109,11 +127,9 @@ export default {
             termEle.append(item.term.element);
           }
           item.term.fit();
+          item.rect = item.term.element.getBoundingClientRect();
         });
       });
-    },
-    command(cmd, hasEnter = true) {
-      this.socket.emit("input", hasEnter ? cmd : cmd + "\r");
     },
     handlePlus() {
       let tab = { name: "tab" + this.terminals.length, children: [] };
@@ -123,20 +139,39 @@ export default {
       });
     },
     handleDelete() {
-      if (this.terminals.length == 1) {
-        this.$destroy();
+      if (
+        this.terminals.length == 1 &&
+        this.terminals[this.currentTab].children.length == 1
+      ) {
+        return false;
       } else {
-        let { term, name } = this.terminals[this.current];
+        let tab = this.terminals[this.currentTab];
+        let { term, name } = tab.children[tab.currentPane];
         term.destroy();
 
-        if (this.current + 1 != this.terminals.length) {
-          let next = this.terminals[this.current + 1];
-          document.getElementById(name).append(next.term.element);
+        if (tab.children.length > 1) {
+          tab.children.splice(tab.currentPane, 1);
+          tab.currentPane = tab.children.length - 1;
+          this.$nextTick(() => {
+            tab.children.forEach(item => {
+              let termEle = document.getElementById(item.name);
+              if (item.term.element != termEle.children[0]) {
+                termEle.innerHTML = "";
+                termEle.append(item.term.element);
+              }
+              item.term.fit();
+              item.rect = item.term.element.getBoundingClientRect();
+            });
+            tab.children[tab.currentPane].term.focus();
+          });
+        } else {
+          this.terminals.splice(this.currentTab, 1);
+          this.currentTab = this.terminals.length - 1;
+          let tab = this.terminals[this.currentTab];
+          tab.currentPane = tab.children.length - 1;
+          tab.children[tab.currentPane].term.focus();
         }
 
-        this.terminals.splice(this.current, 1);
-        this.current = this.terminals.length - 1;
-        this.terminals[this.current].term.focus();
         this.socket.emit("remove", name);
       }
     },
@@ -153,11 +188,30 @@ export default {
       this.createTerminal(tab);
     },
 
+    handleMove(event) {
+      let tab = this.terminals[this.currentTab];
+      if (isInRect(tab.children[tab.currentPane].rect, event)) {
+        return false;
+      }
+      tab.children.forEach(({ term, name, rect }, i) => {
+        if (isInRect(rect, event)) {
+          term.focus();
+          tab.currentPane = i;
+        } else {
+          term.blur();
+        }
+      });
+    },
+
     close() {
       if (this.terminals.length > 0) {
-        this.terminals.forEach(({ term, name }) => {
-          term.destroy();
-          this.socket.emit(name + "-exit");
+        this.terminals.forEach(tab => {
+          if (tab.children) {
+            tab.children.forEach(({ term, name }) => {
+              term.destroy();
+              this.socket.emit(name + "-exit");
+            });
+          }
         });
       }
       this.socket.close();
@@ -173,10 +227,8 @@ export default {
         this.currentTab = this.terminals.length - 1;
       });
     }
-
-    window.onbeforeunload = event => {
-      // this.close();
-      return "Hello";
+    window.onunload = event => {
+      this.close();
     };
   },
 
