@@ -3,15 +3,15 @@
   <div
     class="terminal"
     id="terminal"
-    v-show="visible"
     v-contextmenu:contextmenu
     @mousemove="handleMove"
+    :style="{backgroundColor: bgColor}"
   >
     <div class="header">
       <span>终端</span>
       <ul class="menu-list">
         <li class="active">
-          <select class="terminal-select" v-model="currentTab">
+          <select class="terminal-select" v-model="currentTab" :style="{backgroundColor: bgColor}">
             <option :value="index" v-for="(item, index) in terminals" :key="index">{{ '终端'+index }}</option>
           </select>
         </li>
@@ -56,8 +56,9 @@
       <v-contextmenu-item @click="handleSplitPane">分屏</v-contextmenu-item>
       <v-contextmenu-item @click="handleDelete">关闭</v-contextmenu-item>
       <v-contextmenu-item>设置背景</v-contextmenu-item>
-      <v-contextmenu-item>设置</v-contextmenu-item>
+      <v-contextmenu-item @click="dialogVisible = true">设置</v-contextmenu-item>
     </v-contextmenu>
+    <config-modal :visible.sync="dialogVisible" @setTheme="handleChangeTheme"></config-modal>
   </div>
 </template>
 <script>
@@ -65,6 +66,7 @@ import io from "socket.io-client";
 import uuidv4 from "uuid/v4";
 import { WebLinksAddon } from "xterm-addon-web-links";
 import Terminal from "./Xterm";
+import ConfigModal from "./components/Config";
 
 function isInRect(rect, event) {
   if (
@@ -87,14 +89,31 @@ export default {
       terminals: [],
       socket: null,
       currentTab: 0,
-      visible: true
+      dialogVisible: false,
+      theme: window.localStorage.getItem("theme")
+        ? JSON.parse(window.localStorage.getItem("theme"))
+        : null
     };
+  },
+  computed: {
+    bgColor() {
+      if (this.theme) {
+        return this.theme.background;
+      } else {
+        return "#000";
+      }
+    }
+  },
+  components: {
+    ConfigModal
   },
   methods: {
     createTerminal(container, callback) {
       let terminalname = "terminal" + uuidv4();
 
-      let term = new Terminal();
+      let term = new Terminal({
+        theme: this.theme
+      });
       term.loadAddon(new WebLinksAddon());
 
       container.children.push({ term: term, name: terminalname });
@@ -203,6 +222,17 @@ export default {
       });
     },
 
+    handleChangeTheme(val) {
+      this.theme = val;
+      this.terminals.forEach(tab => {
+        tab.children.forEach(pane => {
+          pane.term.setOption("theme", val);
+        });
+      });
+
+      window.localStorage.setItem("theme", JSON.stringify(val));
+    },
+
     close() {
       if (this.terminals.length > 0) {
         this.terminals.forEach(tab => {
@@ -262,7 +292,6 @@ export default {
     width: 100%;
     height: 40px;
     line-height: 40px;
-    background: #000;
     color: #fff;
     font-size: 14px;
     font-weight: bolder;
@@ -286,7 +315,6 @@ export default {
       }
     }
     .terminal-select {
-      background-color: #000;
       color: #fff;
       width: 120px;
       margin-right: 5px;
