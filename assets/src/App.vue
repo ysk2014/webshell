@@ -57,6 +57,7 @@
       </div>
     </div>
     <v-contextmenu ref="contextmenu" class="contextmenu">
+      <v-contextmenu-item @click="handleCreateTab">新建Tab</v-contextmenu-item>
       <v-contextmenu-item @click="handleSplitPane">分屏</v-contextmenu-item>
       <v-contextmenu-item @click="handleDelete">关闭</v-contextmenu-item>
       <v-contextmenu-item @click="dialogVisible = true">设置</v-contextmenu-item>
@@ -215,6 +216,15 @@ export default {
         return false;
       }
       this.createTerminal(tab);
+    },
+
+    handleCreateTab() {
+      // 新建Tab
+      let tab = { name: "tab0", children: [] };
+      this.createTerminal(tab, () => {
+        this.terminals.push(tab);
+        this.currentTab = this.terminals.length - 1;
+      });
     },
 
     handleMove(event) {
