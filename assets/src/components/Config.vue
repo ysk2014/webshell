@@ -1,13 +1,99 @@
 <template>
   <div class="dialog-modal" v-show="visible" @click.self="() => $emit('update:visible', false)">
     <div class="config-container">
-      <div class="btn-close el-icon-close"></div>
+      <div class="btn-close el-icon-close" @click="() => $emit('update:visible', false)"></div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="背景图片" name="first">设置背景图片</el-tab-pane>
         <el-tab-pane label="主题" name="second">
-          <el-select v-model="theme" placeholder="请选择">
+          <el-select v-model="theme" placeholder="请选择主题" style="width: 100%">
             <el-option v-for="item in themes" :key="item" :label="item" :value="item"></el-option>
           </el-select>
+          <div v-if="theme">
+            <p class="title">基础颜色</p>
+            <el-row type="flex" class="theme-colors">
+              <el-col :span="8">
+                <div class="show-color" :style="{backgroundColor: colors.background}"></div>
+                <div>Background</div>
+              </el-col>
+              <el-col :span="8">
+                <div class="show-color" :style="{backgroundColor: colors.foreground}"></div>
+                <div>Foreground</div>
+              </el-col>
+              <el-col :span="8">
+                <div class="show-color" :style="{backgroundColor: colors.cursor}"></div>
+                <div>Cursor</div>
+              </el-col>
+            </el-row>
+            <p class="title">ANSI Colors</p>
+            <el-row type="flex" class="theme-colors">
+              <el-col :span="3">
+                <div class="show-color" :style="{backgroundColor: colors.black}"></div>
+                <div>Black</div>
+              </el-col>
+              <el-col :span="3">
+                <div class="show-color" :style="{backgroundColor: colors.red}"></div>
+                <div>Red</div>
+              </el-col>
+              <el-col :span="3">
+                <div class="show-color" :style="{backgroundColor: colors.green}"></div>
+                <div>Green</div>
+              </el-col>
+              <el-col :span="3">
+                <div class="show-color" :style="{backgroundColor: colors.yellow}"></div>
+                <div>Yellow</div>
+              </el-col>
+              <el-col :span="3">
+                <div class="show-color" :style="{backgroundColor: colors.blue}"></div>
+                <div>Blue</div>
+              </el-col>
+              <el-col :span="3">
+                <div class="show-color" :style="{backgroundColor: colors.magenta}"></div>
+                <div>Magenta</div>
+              </el-col>
+              <el-col :span="3">
+                <div class="show-color" :style="{backgroundColor: colors.cyan}"></div>
+                <div>Cyan</div>
+              </el-col>
+              <el-col :span="3">
+                <div class="show-color" :style="{backgroundColor: colors.white}"></div>
+                <div>White</div>
+              </el-col>
+            </el-row>
+            <el-row type="flex" class="theme-colors">
+              <el-col :span="3">
+                <div class="show-color" :style="{backgroundColor: colors.brightBlack}"></div>
+                <div>BrightBlack</div>
+              </el-col>
+              <el-col :span="3">
+                <div class="show-color" :style="{backgroundColor: colors.brightRed}"></div>
+                <div>BrightRed</div>
+              </el-col>
+              <el-col :span="3">
+                <div class="show-color" :style="{backgroundColor: colors.brightGreen}"></div>
+                <div>BrightGreen</div>
+              </el-col>
+              <el-col :span="3">
+                <div class="show-color" :style="{backgroundColor: colors.brightYellow}"></div>
+                <div>BrightYellow</div>
+              </el-col>
+              <el-col :span="3">
+                <div class="show-color" :style="{backgroundColor: colors.brightBlue}"></div>
+                <div>BrightBlue</div>
+              </el-col>
+              <el-col :span="3">
+                <div class="show-color" :style="{backgroundColor: colors.brightMagenta}"></div>
+                <div>BrightMagenta</div>
+              </el-col>
+              <el-col :span="3">
+                <div class="show-color" :style="{backgroundColor: colors.brightCyan}"></div>
+                <div>BrightCyan</div>
+              </el-col>
+              <el-col :span="3">
+                <div class="show-color" :style="{backgroundColor: colors.brightWhite}"></div>
+                <div>BrightWhite</div>
+              </el-col>
+            </el-row>
+          </div>
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -27,8 +113,17 @@ export default {
     return {
       activeName: "first",
       themes: themes,
-      theme: null
+      theme: window.localStorage.getItem("themeName") || null
     };
+  },
+  computed: {
+    colors() {
+      if (this.theme) {
+        return xtermTheme[this.theme];
+      } else {
+        return null;
+      }
+    }
   },
   watch: {
     theme(val) {
@@ -49,6 +144,7 @@ export default {
   z-index: 2000;
   text-align: center;
   background-color: rgba(0, 0, 0, 0.1);
+  color: #000;
 
   &::after {
     content: "";
@@ -61,7 +157,7 @@ export default {
 .config-container {
   position: relative;
   display: inline-block;
-  min-width: 420px;
+  min-width: 640px;
   padding: 10px 10px 10px;
   vertical-align: middle;
   background-color: #fff;
@@ -80,6 +176,24 @@ export default {
     width: 10px;
     height: 10px;
     cursor: pointer;
+  }
+
+  .title {
+    font-size: 14px;
+  }
+
+  .theme-colors {
+    font-size: 12px;
+
+    .show-color {
+      width: 100%;
+      height: 24px;
+      margin-bottom: 10px;
+    }
+
+    .el-col {
+      text-align: center;
+    }
   }
 }
 </style>

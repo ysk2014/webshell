@@ -5,18 +5,22 @@
     id="terminal"
     v-contextmenu:contextmenu
     @mousemove="handleMove"
-    :style="{backgroundColor: bgColor}"
+    :style="{backgroundColor: bgColor, color: fontColor}"
   >
     <div class="header">
       <span>终端</span>
       <ul class="menu-list">
         <li class="active">
-          <select class="terminal-select" v-model="currentTab" :style="{backgroundColor: bgColor}">
+          <select
+            class="terminal-select"
+            v-model="currentTab"
+            :style="{backgroundColor: bgColor, color: fontColor }"
+          >
             <option :value="index" v-for="(item, index) in terminals" :key="index">{{ '终端'+index }}</option>
           </select>
         </li>
-        <li class="icon-plus" @click="handlePlus"></li>
-        <li class="icon-delete" @click="handleDelete"></li>
+        <li class="el-icon-plus" @click="handlePlus"></li>
+        <li class="el-icon-delete" @click="handleDelete"></li>
       </ul>
     </div>
     <div id="xterm-wrapper">
@@ -101,6 +105,13 @@ export default {
         return this.theme.background;
       } else {
         return "#000";
+      }
+    },
+    fontColor() {
+      if (this.theme) {
+        return this.theme.foreground;
+      } else {
+        return "#fff";
       }
     }
   },
@@ -292,7 +303,6 @@ export default {
     width: 100%;
     height: 40px;
     line-height: 40px;
-    color: #fff;
     font-size: 14px;
     font-weight: bolder;
     padding: 0 10px;
@@ -310,32 +320,16 @@ export default {
         padding: 0 10px;
         line-height: 40px;
         cursor: pointer;
-        color: #fff;
         float: left;
       }
     }
     .terminal-select {
-      color: #fff;
       width: 120px;
       margin-right: 5px;
     }
-    .icon-plus {
-      width: 40px;
-      height: 40px;
-      background: url(./assets/images/plus.png) center no-repeat;
-      background-size: 16px;
-    }
-    .icon-delete {
-      width: 40px;
-      height: 40px;
-      background: url(./assets/images/delete.png) center no-repeat;
-      background-size: 17px;
-    }
-    .icon-close {
-      width: 40px;
-      height: 40px;
-      background: url(./assets/images/close.png) center no-repeat;
-      background-size: 16px;
+    .el-icon-plus,
+    .el-icon-delete {
+      font-size: 18px;
     }
   }
 
