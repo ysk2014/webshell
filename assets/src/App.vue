@@ -59,7 +59,6 @@
     <v-contextmenu ref="contextmenu" class="contextmenu">
       <v-contextmenu-item @click="handleSplitPane">分屏</v-contextmenu-item>
       <v-contextmenu-item @click="handleDelete">关闭</v-contextmenu-item>
-      <v-contextmenu-item>设置背景</v-contextmenu-item>
       <v-contextmenu-item @click="dialogVisible = true">设置</v-contextmenu-item>
     </v-contextmenu>
     <config-modal :visible.sync="dialogVisible" @setTheme="handleChangeTheme"></config-modal>

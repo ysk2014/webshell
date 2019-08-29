@@ -3,8 +3,7 @@
     <div class="config-container">
       <div class="btn-close el-icon-close" @click="() => $emit('update:visible', false)"></div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
-        <el-tab-pane label="背景图片" name="first">设置背景图片</el-tab-pane>
-        <el-tab-pane label="主题" name="second">
+        <el-tab-pane label="主题" name="first">
           <el-select v-model="theme" placeholder="请选择主题" style="width: 100%">
             <el-option v-for="item in themes" :key="item" :label="item" :value="item"></el-option>
           </el-select>
@@ -113,7 +112,8 @@ export default {
     return {
       activeName: "first",
       themes: themes,
-      theme: window.localStorage.getItem("themeName") || null
+      theme: window.localStorage.getItem("themeName") || null,
+      bgimg: window.localStorage.getItem("bgimg") || null
     };
   },
   computed: {
@@ -129,6 +129,17 @@ export default {
     theme(val) {
       window.localStorage.setItem("themeName", val);
       this.$emit("setTheme", xtermTheme[val]);
+    }
+  },
+  methods: {
+    handleUpload(e) {
+      let file = event.target.files[0];
+      var reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = e => {
+        this.bgimg = e.target.result;
+        window.localStorage.setItem("bgimg", e.target.result);
+      };
     }
   }
 };
@@ -158,7 +169,8 @@ export default {
   position: relative;
   display: inline-block;
   min-width: 640px;
-  padding: 10px 10px 10px;
+  min-height: 380px;
+  padding: 10px 10px 20px;
   vertical-align: middle;
   background-color: #fff;
   border-radius: 4px;
@@ -195,5 +207,27 @@ export default {
       text-align: center;
     }
   }
+
+  .bgimg-btn {
+    width: 600px;
+    height: 300px;
+
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+
+.upload-input {
+  z-index: 100000;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  font-size: 0;
+  opacity: 0;
 }
 </style>
