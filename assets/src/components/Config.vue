@@ -1,7 +1,6 @@
 <template>
   <div class="dialog-modal" v-show="visible" @click.self="() => $emit('update:visible', false)">
     <div class="config-container">
-      <div class="btn-close el-icon-close" @click="() => $emit('update:visible', false)"></div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="主题" name="first">
           <el-select v-model="theme" placeholder="请选择主题" style="width: 100%">
