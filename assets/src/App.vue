@@ -302,7 +302,7 @@ export default {
   },
 
   mounted() {
-    this.socket = io(window.location.origin + "/terminal");
+    this.socket = io(window.location.origin + "/terminal", {reconnection: true});
     if (this.terminals.length == 0) {
       let tab = { name: "tab0", children: [] };
       this.createTerminal(tab, () => {
