@@ -1,14 +1,15 @@
 const pty = require('node-pty');
 const os = require('os');
+const userhome = require('user-home');
 const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
 
 module.exports = socket => {
     socket.on('create', option => {
-        let ptyProcess = pty.spawn(shell, [], {
+        let ptyProcess = pty.spawn(shell, ['--login'], {
             name: 'xterm-color',
             cols: option.cols || 80,
             rows: option.rows || 24,
-            cwd: option.cwd,
+            cwd: option.cwd || userhome,
             env: process.env
         });
         ptyProcess.on('data', data => socket.emit(option.name + '-output', data));
@@ -19,10 +20,14 @@ module.exports = socket => {
         socket.on(option.name + '-exit', size => {
             ptyProcess.destroy();
         });
+        socket.emit(option.name + '-pid', ptyProcess.pid);
     });
     socket.on('remove', name => {
         socket.removeAllListeners(name + '-input');
         socket.removeAllListeners(name + '-resize');
         socket.removeAllListeners(name + '-exit');
+    });
+    socket.on('disconnect', reason => {
+        socket.removeAllListeners();
     });
 };

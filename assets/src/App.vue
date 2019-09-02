@@ -69,6 +69,7 @@
 import io from "socket.io-client";
 import uuidv4 from "uuid/v4";
 import { WebLinksAddon } from "xterm-addon-web-links";
+import axios from "@/apis/index";
 import Terminal from "./Xterm";
 import ConfigModal from "./components/Config";
 
@@ -119,7 +120,7 @@ export default {
     ConfigModal
   },
   methods: {
-    createTerminal(container, callback) {
+    createTerminal(container, callback, cwd = null) {
       let terminalname = "terminal" + uuidv4();
 
       let term = new Terminal({
@@ -127,7 +128,9 @@ export default {
       });
       term.loadAddon(new WebLinksAddon());
 
-      container.children.push({ term: term, name: terminalname });
+      let pane = { term: term, name: terminalname };
+
+      container.children.push(pane);
       container.currentPane = container.children.length - 1;
 
       callback && callback();
@@ -143,10 +146,14 @@ export default {
         term.write(arrayBuffer);
       });
 
+      this.socket.on(terminalname + "-pid", pid => {
+        pane.pid = pid;
+      });
+
       window.addEventListener("resize", () => {
         term.fit();
       });
-      this.socket.emit("create", { name: terminalname, cwd: this.cwd });
+      this.socket.emit("create", { name: terminalname, cwd });
 
       this.$nextTick(() => {
         term.open(document.getElementById(terminalname));
@@ -215,7 +222,16 @@ export default {
         });
         return false;
       }
-      this.createTerminal(tab);
+
+      axios({
+        url: "/api/cwd",
+        method: "get",
+        params: {
+          pid: tab.children[tab.currentPane].pid
+        }
+      }).then(cwd => {
+        this.createTerminal(tab, null, cwd);
+      });
     },
 
     handleCreateTab() {
@@ -268,6 +284,23 @@ export default {
     }
   },
 
+  created() {
+    window.onkeydown = window.onkeyup = window.onkeypress = () => {
+      let _key = window.event.keyCode;
+      if (_key === 70 && window.event.ctrlKey) {
+        window.event.returnValue = false;
+        let tab = this.terminals[this.currentTab];
+        tab.children[tab.currentPane].term.findNext("go", {
+          incremental: true
+        });
+        return false;
+      }
+    };
+    window.onunload = event => {
+      this.close();
+    };
+  },
+
   mounted() {
     this.socket = io(window.location.origin + "/terminal");
     if (this.terminals.length == 0) {
@@ -277,9 +310,6 @@ export default {
         this.currentTab = this.terminals.length - 1;
       });
     }
-    window.onunload = event => {
-      this.close();
-    };
   },
 
   beforeDestroy() {
@@ -368,6 +398,13 @@ export default {
     .terminal-pane {
       width: 100%;
       height: 100%;
+    }
+
+    .xterm {
+      opacity: 0.6;
+    }
+    .xterm.focus {
+      opacity: 1;
     }
   }
 }

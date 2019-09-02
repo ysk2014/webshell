@@ -1,0 +1,8 @@
+.xterm.enable-mouse-events {
+    opacity: 0.6;
+}
+
+.xterm.enable-mouse-events.focus,
+.xterm.enable-mouse-events:focus {
+    opacity: 1;
+}
