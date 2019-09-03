@@ -18,8 +18,12 @@ cd assets && npm start
 
 ## 部署
 
-```
+```js
 npm run build
 
+// 默认端口：3000
 node ./bin/webshell
+
+//修改端口
+node ./bin/webshell 3001
 ```
