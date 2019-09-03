@@ -25,5 +25,8 @@ npm run build
 node ./bin/webshell
 
 //修改端口
-node ./bin/webshell 3001
+node ./bin/webshell --port 3001
+
+//如果使用pm2
+pm2 start ./bin/webshell -- --port 3001
 ```
