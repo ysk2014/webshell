@@ -19,6 +19,7 @@
     },
     "homepage": "https://github.com/ysk2014/webshell#readme",
     "dependencies": {
+        "args": "5.0.1",
         "body-parser": "1.19.0",
         "ejs": "2.6.2",
         "express": "4.17.1",
