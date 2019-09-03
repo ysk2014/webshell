@@ -124,12 +124,6 @@ module.exports = {
         ]
     },
 
-    watch: true,
-
-    watchOptions: {
-        poll: true
-    },
-
     plugins: [
         new webpack.DefinePlugin({
             'process.env': {

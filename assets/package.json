@@ -6,7 +6,8 @@
     "license": "{{ license }}",
     "private": true,
     "scripts": {
-        "start": "webpack --mode=development --colors --progress --watch"
+        "start": "webpack --mode=development --colors --progress --watch",
+        "build": "webpack --mode=production --colors --progress"
     },
     "browserslist": [
         "> 1%",

@@ -4,7 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "dev": "node ./bin/webshell"
+        "dev": "node ./bin/webshell",
+        "build": "npm i && cd assets && npm i && npm run build"
     },
     "repository": {
         "type": "git",
@@ -18,12 +19,12 @@
     },
     "homepage": "https://github.com/ysk2014/webshell#readme",
     "dependencies": {
-        "body-parser": "^1.19.0",
-        "ejs": "^2.6.2",
-        "express": "^4.17.1",
-        "morgan": "^1.9.1",
-        "node-pty": "^0.8.1",
-        "socket.io": "^2.2.0",
-        "user-home": "^2.0.0"
+        "body-parser": "1.19.0",
+        "ejs": "2.6.2",
+        "express": "4.17.1",
+        "morgan": "1.9.1",
+        "node-pty": "0.8.1",
+        "socket.io": "2.2.0",
+        "user-home": "2.0.0"
     }
 }

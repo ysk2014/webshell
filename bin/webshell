@@ -1,11 +1,12 @@
 #!/usr/bin/env node
+process.env.NODE_ENV = 'production';
 const http = require('http');
 const app = require('../app');
 const createSocketServer = require('../socket/index');
 
-let port = 3000;
+let port = parseInt(process.argv[2], 10) || 3000;
 
-app.set('port', 3000);
+app.set('port', port);
 
 let server = http.createServer(app);
 
