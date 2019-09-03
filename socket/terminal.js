@@ -3,6 +3,8 @@ const os = require('os');
 const userhome = require('user-home');
 const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
 
+let ptyContainers = {};
+
 module.exports = socket => {
     socket.on('create', option => {
         let ptyProcess = pty.spawn(shell, ['--login'], {
@@ -21,13 +23,24 @@ module.exports = socket => {
             ptyProcess.destroy();
         });
         socket.emit(option.name + '-pid', ptyProcess.pid);
+        ptyContainers[option.name] = ptyProcess;
     });
     socket.on('remove', name => {
         socket.removeAllListeners(name + '-input');
         socket.removeAllListeners(name + '-resize');
         socket.removeAllListeners(name + '-exit');
+        if (name && ptyContainers[name] && ptyContainers[name].pid) {
+            ptyContainers[name].destroy();
+            delete ptyContainers[name];
+        }
     });
     socket.on('disconnect', reason => {
         socket.removeAllListeners();
+        Object.keys(ptyContainers).forEach(key => {
+            if (ptyContainers[key] && ptyContainers[key].pid) {
+                ptyContainers[key].destroy();
+                delete ptyContainers[key];
+            }
+        });
     });
 };
