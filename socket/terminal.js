@@ -34,13 +34,4 @@ module.exports = socket => {
             delete ptyContainers[name];
         }
     });
-    socket.on('disconnect', reason => {
-        socket.removeAllListeners();
-        Object.keys(ptyContainers).forEach(key => {
-            if (ptyContainers[key] && ptyContainers[key].pid) {
-                ptyContainers[key].destroy();
-                delete ptyContainers[key];
-            }
-        });
-    });
 };
