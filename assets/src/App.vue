@@ -207,6 +207,21 @@ export default {
           let tab = this.terminals[this.currentTab];
           tab.currentPane = tab.children.length - 1;
           tab.children[tab.currentPane].term.focus();
+
+          this.$nextTick(() => {
+            this.terminals.forEach(tab => {
+              tab.children.forEach(item => {
+                let termEle = document.getElementById(item.name);
+                if (item.term.element != termEle.children[0]) {
+                  termEle.innerHTML = '';
+                  termEle.append(item.term.element);
+                }
+                item.term.fit();
+                item.rect = item.term.element.getBoundingClientRect();
+              });
+              tab.children[tab.currentPane].term.focus();
+            });
+          });
         }
 
         this.socket.emit("remove", name);
