@@ -16,9 +16,14 @@
 ## 开发
 
 ```js
+npm install
 npm run dev
 
-cd assets && npm start
+cd assets
+
+npm install
+
+npm start
 ```
 
 ## 部署
