@@ -24,7 +24,7 @@
         "ejs": "2.6.2",
         "express": "4.17.1",
         "morgan": "1.9.1",
-        "node-pty": "0.8.1",
+        "node-pty": "^0.9.0",
         "socket.io": "2.2.0",
         "user-home": "2.0.0"
     }
