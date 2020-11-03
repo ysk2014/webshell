@@ -1,4 +1,4 @@
-# web termianl
+# web terminal
 
 ![GitHub Logo](webshell.gif)
 
